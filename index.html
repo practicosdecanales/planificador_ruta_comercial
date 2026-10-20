@@ -163,7 +163,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   const INITIAL_MAP_WAYPOINTS = ['BAHIA QUINTEROS','VALPARAISO','PTO SAN ANTONIO','BA CONCEPCION','BA SAN VICENTE','BA CORONEL','PS ANCUD','PUERTO MONTT','PS LAITEC','CABO NEGRO','BAHIA PARENAS','PS POSESION','GUARELLO','BAHIA CHACABUCO'];
   const ROUTE_RESTRICTIONS = [
     { point: 'ANCUD', text: 'Eslora máxima: 230 m · Calado máximo: 11 m' },
-    { point: 'TRES CRUCES', text: 'Calado aéreo máximo: 59 m' },
+    { waypointIncludes: 'REMOLINOS', text: 'Calado aéreo máximo: 59 m' },
     { point: 'PULLUCHE E', text: 'Calado máximo: 7,5 m' },
     { point: 'PULLUCHE W', text: 'Calado máximo: 9 m' },
     { point: 'FOOT', text: 'Navegar con luz diurna y cercano a estoa · Calado máximo: 10,7 m · Eslora máxima: 180 m' },
@@ -622,7 +622,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
             const arrow = index ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
             return `${arrow}<span class="flow-node ${nodeClass}">${escapeText(node)}</span>`;
           }).join('');
-                    const restrictions = ROUTE_RESTRICTIONS.filter(item => route.nodes.includes(item.point));
+                    const restrictions = ROUTE_RESTRICTIONS.filter(item => item.point ? route.nodes.includes(item.point) : new RegExp('WPName="[^"]*' + item.waypointIncludes + '[^"]*"', 'i').test(route.content || ''));
           const restrictionsMarkup = restrictions.length ? `<span class="route-restrictions"><strong>Restricción:</strong> ${restrictions.map(item => escapeText(item.text)).join('<br>')}</span>` : '';
           button.innerHTML = `<span class="choice-main"><span class="choice-copy flow-path">${flowNodes}</span>${restrictionsMarkup}</span><span class="choice-action">Elegir&nbsp; →</span>`;
           button.addEventListener('click', () => {
