@@ -366,7 +366,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   }
 
   function canReachDestination(from, finish, initialUsedFiles, initialVisitedNodes) {
-    if (from === finish) return true;
+    const requireCorona = canonical(originSelect.value) === 'CHACABUCO' && canonical(finish) === 'CORONEL';
+    if (from === finish) return !requireCorona || initialVisitedNodes.has('CORONA');
     const queue = [{ at: from, usedFiles: new Set(initialUsedFiles), visitedNodes: new Set(initialVisitedNodes) }];
     const seenStates = new Set();
     while (queue.length) {
@@ -377,6 +378,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       for (const route of ROUTES) {
         if (!route.nodes.length || route.nodes[0] !== state.at || state.usedFiles.has(route.file) || !routeAllowedForTrip(route, originSelect.value, finish)) continue;
         if (NORTHBOUND_ORIGINS.includes(canonical(originSelect.value)) && finish === 'CHACABUCO' && (state.at === 'TUAP' || route.nodes.includes('TUAP'))) continue;
+        if (canonical(originSelect.value) === 'CHACABUCO' && isNorthboundTrip(originSelect.value, finish) && (state.at === 'RAPER' || route.nodes.includes('RAPER'))) continue;
         if (SOUTHBOUND_ORIGINS.includes(canonical(originSelect.value)) && finish === 'CHACABUCO' && (state.at === 'RAPER' || route.nodes.includes('RAPER'))) continue;
         if (finish === 'GUARELLO' && route.nodes.includes('FALGATE')) continue;
         if (NORTHBOUND_ORIGINS.includes(canonical(originSelect.value)) && SOUTHBOUND_ONLY_GUARELLO_ROUTES.has(route.file)) continue;
@@ -385,7 +387,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
         if (followingNodes.some(node => node !== finish && state.visitedNodes.has(node))) continue;
         if (followingNodes.some(node => node !== finish && activeTerminals().has(node))) continue;
         const nextNode = route.nodes.at(-1);
-        if (nextNode === finish) return true;
+        if (nextNode === finish) return !requireCorona || state.visitedNodes.has('CORONA') || route.nodes.includes('CORONA');
         const nextUsedFiles = new Set(state.usedFiles);
         nextUsedFiles.add(route.file);
         const nextVisitedNodes = new Set(state.visitedNodes);
@@ -550,6 +552,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const choices = ROUTES.filter(route => {
       if (!route.nodes.length || route.nodes[0] !== currentNode || usedFiles.has(route.file) || !routeAllowedForTrip(route, start, finish)) return false;
       if (NORTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'TUAP' || route.nodes.includes('TUAP'))) return false;
+      if (start === 'CHACABUCO' && isNorthboundTrip(start, finish) && (currentNode === 'RAPER' || route.nodes.includes('RAPER'))) return false;
       if (SOUTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'RAPER' || route.nodes.includes('RAPER'))) return false;
       if (finish === 'GUARELLO' && route.nodes.includes('FALGATE')) return false;
       if (NORTHBOUND_ORIGINS.includes(start) && SOUTHBOUND_ONLY_GUARELLO_ROUTES.has(route.file)) return false;
