@@ -567,6 +567,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       return canReachDestination(route.nodes.at(-1), finish, nextFiles, nextNodes);
     });
     choices.sort((a, b) => {
+      const aViaRaperGuafo = currentNode === 'TRES CRUCES' && a.nodes.includes('GUAFO') && a.nodes.includes('RAPER');
+      const bViaRaperGuafo = currentNode === 'TRES CRUCES' && b.nodes.includes('GUAFO') && b.nodes.includes('RAPER');
+      if (aViaRaperGuafo !== bViaRaperGuafo) return aViaRaperGuafo ? 1 : -1;
       const northbound = isNorthboundTrip(start, finish);
       const latitudeDifference = routeEndLatitude(a) - routeEndLatitude(b);
       if (Math.abs(latitudeDifference) > 0.000001) return northbound ? -latitudeDifference : latitudeDifference;
