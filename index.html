@@ -12,7 +12,7 @@
 
  .brand-logos{display:flex;align-items:center;gap:10px;flex:0 0 auto}.brand-item{width:62px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}.brand-item img{display:block;width:54px;height:54px;object-fit:contain}.brand-item span{min-height:18px;color:#52677c;font-size:9px;line-height:1.05;font-weight:750;letter-spacing:.04em}.hero-subtitle{margin:8px 0 0;color:#52677c;font-size:14px;line-height:1.45}
 @media(max-width:720px){.hero{display:block}.brand-logos{margin-bottom:14px}}
-.eta-note{margin:10px 0 0;color:#6a7d90;font-size:12px;line-height:1.45}.forecast-panel{margin-top:16px;padding:14px;border:1px solid #d9e2ea;border-radius:12px;background:#fff}.forecast-panel h3{margin:0 0 8px;font-size:16px}.forecast-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.forecast-card{padding:11px;border:1px solid #dbe4ec;border-radius:9px;background:#f8fafc}.forecast-card strong{display:block;margin-bottom:6px;color:#173b5e}.forecast-status,.forecast-caveat{margin:8px 0 0;color:#607286;font-size:12px;line-height:1.45}.speed-control{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.speed-control label{display:flex;align-items:center;gap:10px}.speed-control input{width:110px;text-align:center}.speed-adjust{width:42px;height:42px;border:1px solid #bdcad6;border-radius:9px;background:#fff;color:#174f7e;font-size:23px;font-weight:700;line-height:1;cursor:pointer}.speed-adjust:hover{background:#eef5fa;border-color:#7199bc}.speed-units{color:#52677c;font-size:14px;font-weight:600}.etd-field{display:grid;gap:8px}.etd-title{color:#344a60;font-size:14px;font-weight:650}.etd-input-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}.etd-input-wrap label{min-width:0}.etd-input-wrap input{min-width:0;min-height:48px;padding:8px;font-size:16px;touch-action:manipulation}
+.eta-note{margin:10px 0 0;color:#6a7d90;font-size:12px;line-height:1.45}.speed-control{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.speed-control label{display:flex;align-items:center;gap:10px}.speed-control input{width:110px;text-align:center}.speed-adjust{width:42px;height:42px;border:1px solid #bdcad6;border-radius:9px;background:#fff;color:#174f7e;font-size:23px;font-weight:700;line-height:1;cursor:pointer}.speed-adjust:hover{background:#eef5fa;border-color:#7199bc}.speed-units{color:#52677c;font-size:14px;font-weight:600}.etd-field{display:grid;gap:8px}.etd-title{color:#344a60;font-size:14px;font-weight:650}.etd-input-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}.etd-input-wrap label{min-width:0}.etd-input-wrap input{min-width:0;min-height:48px;padding:8px;font-size:16px;touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -39,7 +39,7 @@
     <section class="panel" id="route-panel" aria-labelledby="route-title">
       <div class="section-title"><span class="step">2</span><div><h2 id="route-title">Elige el siguiente tramo</h2><p>Sigue las flechas del diagrama y elige una ruta en cada punto de decisión.</p></div></div>
       <div id="route-list" class="route-list"><p class="empty">Primero completa los datos del viaje.</p></div>
-      <div class="route-map-wrap"><p class="route-map-heading">Mapa de referencia <span id="route-map-status" class="route-map-status">El mapa mostrará los tramos que elijas.</span></p><div id="route-map" role="application" aria-label="Mapa de referencia y recorrido seleccionado"></div><p id="route-map-message" class="route-map-message" role="status" aria-live="polite">Las cartas recibidas se combinan; en los solapes, la de mayor detalle queda encima.</p><div class="speed-control"><label for="transit-speed">Velocidad de tránsito</label><button id="speed-decrease" class="speed-adjust" type="button" aria-label="Disminuir velocidad">−</button><input id="transit-speed" type="number" min="0.1" step="0.1" value="12.0" inputmode="decimal" aria-label="Velocidad de tránsito en nudos"><button id="speed-increase" class="speed-adjust" type="button" aria-label="Aumentar velocidad">+</button><span class="speed-units">nudos</span></div><p class="eta-note">El cálculo de ETA supone velocidad constante y no considera detenciones ni cambios de velocidad.</p><section id="forecast-panel" class="forecast-panel" hidden aria-live="polite"><h3>Pronóstico en WPT seleccionados</h3><div id="forecast-list" class="forecast-list"></div><p id="forecast-status" class="forecast-status"></p><p class="forecast-caveat">Pronóstico de referencia, sujeto a incertidumbre y requiere internet. No sustituye los avisos ni fuentes meteorológicas oficiales para navegación. Fuente de datos: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> y <a href="https://www.dwd.de/EN/" target="_blank" rel="noopener">DWD</a>.</p></section></div>
+      <div class="route-map-wrap"><p class="route-map-heading">Mapa de referencia <span id="route-map-status" class="route-map-status">El mapa mostrará los tramos que elijas.</span></p><div id="route-map" role="application" aria-label="Mapa de referencia y recorrido seleccionado"></div><p id="route-map-message" class="route-map-message" role="status" aria-live="polite">Las cartas recibidas se combinan; en los solapes, la de mayor detalle queda encima.</p><div class="speed-control"><label for="transit-speed">Velocidad de tránsito</label><button id="speed-decrease" class="speed-adjust" type="button" aria-label="Disminuir velocidad">−</button><input id="transit-speed" type="number" min="0.1" step="0.1" value="12.0" inputmode="decimal" aria-label="Velocidad de tránsito en nudos"><button id="speed-increase" class="speed-adjust" type="button" aria-label="Aumentar velocidad">+</button><span class="speed-units">nudos</span></div><p class="eta-note">El cálculo de ETA supone velocidad constante y no considera detenciones ni cambios de velocidad.</p></div>
     </section>
 
     <section class="panel summary" aria-labelledby="summary-title">
@@ -172,24 +172,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     { waypointIncludes: 'ABISMO', label: 'Paso del Abismo', text: 'Luz diurna' },
     { waypointIncludes: 'PILOTO PARDO', label: 'Paso Piloto Pardo', text: 'Luz diurna' },
     { point: 'GRAY', label: 'Canal Gray', text: 'Navegar con luz diurna / Eslora máxima: 230 mts / Calado máximo: 12 mts' },
-  ];  const FORECAST_WAYPOINTS = [
-    { label: 'Faro Corona', aliases: ['FARO CORONA'] },
-    { label: 'Isla Guafo', aliases: ['ISLA GUAFO'] },
-    { label: 'Faro Raper', aliases: ['FARO RAPER'] },
-    { label: 'Golf Ladrillero', aliases: ['GOLF LADRILLERO','GOLFO LADRILLERO'] },
-    { label: 'Fo Evangelistas', aliases: ['FO EVANGELISTAS','IS EVANGELISTAS'] },
-    { label: 'Bahía Spartan', aliases: ['BAHIA SPARTAN'] }
-  ].map(item => ({ ...item, aliases: item.aliases.map(normalizeWaypointName) }));  const INITIAL_VIEW_BOUNDS = [[-53.20418, -71.53522], [-32.74451, -70.77502]];
-  function rt3Coordinate(value) {
-    const raw = Number(value);
-    if (!Number.isFinite(raw)) return Number.NaN;
-    const sign = raw < 0 ? -1 : 1;
-    const absolute = Math.abs(raw);
-    const degrees = Math.floor(absolute / 100);
-    const minutes = absolute - degrees * 100;
-    return sign * (degrees + minutes / 60);
-  }
-
+  ];  const INITIAL_VIEW_BOUNDS = [[-53.20418, -71.53522], [-32.74451, -70.77502]];
   function normalizeWaypointName(value) {
     return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim().split(' ').filter(Boolean).join(' ');
   }
@@ -224,8 +207,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
             return aliases.some(alias => name === alias || name.includes(alias));
           });
           if (point) {
-            const lat = rt3Coordinate(point.getAttribute('Lat'));
-            const lon = rt3Coordinate(point.getAttribute('Lon'));
+            const lat = Number(point.getAttribute('Lat')) / 60;
+            const lon = Number(point.getAttribute('Lon')) / 60;
             if (Number.isFinite(lat) && Number.isFinite(lon)) {
               result = { lat, lon, label: endpoint.label };
               break;
@@ -254,8 +237,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
           const name = normalizeWaypointName(point.getAttribute('WPName'));
           const item = WAYPOINT_LABELS.find(candidate => candidate.aliases.some(alias => name === alias || name.includes(alias)));
           if (!item || (allowed && !allowed.has(item.label)) || added.has(item.label)) return;
-          const lat = rt3Coordinate(point.getAttribute('Lat'));
-          const lon = rt3Coordinate(point.getAttribute('Lon'));
+          const lat = Number(point.getAttribute('Lat')) / 60;
+          const lon = Number(point.getAttribute('Lon')) / 60;
           if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
           const eta = etaByLabel.get(item.label);
           const tooltip = eta ? `${item.label}\nETA: ${eta}` : item.label;
@@ -269,11 +252,6 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   }
   const mapStatus = document.getElementById('route-map-status');
   const mapMessage = document.getElementById('route-map-message');
-  const forecastPanel = document.getElementById('forecast-panel');
-  const forecastList = document.getElementById('forecast-list');
-  const forecastStatus = document.getElementById('forecast-status');
-  let forecastRequestId = 0;
-  let forecastTimer = null;
   let routeMap = null;
   let routeLine = null;
   let routeMarkers = null;
@@ -320,7 +298,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     let lastSegmentLatLngs = [];
     selectedSegments.forEach(segment => {
       try {
-        const points = parseRoute(segment).points.map(point => [rt3Coordinate(point.getAttribute('Lat')), rt3Coordinate(point.getAttribute('Lon'))]);
+        const points = parseRoute(segment).points.map(point => [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60]);
         const valid = points.filter(point => point.every(Number.isFinite));
         if (latlngs.length && valid.length && Math.abs(latlngs.at(-1)[0] - valid[0][0]) < 0.00034 && Math.abs(latlngs.at(-1)[1] - valid[0][1]) < 0.00034) valid.shift();
         latlngs.push(...valid);
@@ -474,7 +452,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   function routeDistanceNm(route) {
     try {
       const positions = parseRoute(route).points
-        .map(point => [rt3Coordinate(point.getAttribute('Lat')), rt3Coordinate(point.getAttribute('Lon'))])
+        .map(point => [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60])
         .filter(position => position.every(Number.isFinite));
       let distance = 0;
       for (let i = 1; i < positions.length; i++) distance += distanceNmBetween(positions[i - 1], positions[i]);
@@ -488,7 +466,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     try {
       const points = parseRoute(route).points;
       const last = points.at(-1);
-      const latitude = rt3Coordinate(last && last.getAttribute('Lat'));
+      const latitude = Number(last && last.getAttribute('Lat')) / 60;
       return Number.isFinite(latitude) ? latitude : Number.POSITIVE_INFINITY;
     } catch (_) {
       return Number.POSITIVE_INFINITY;
@@ -505,7 +483,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     segments.forEach(route => {
       try {
         parseRoute(route).points.forEach(point => {
-          const position = [rt3Coordinate(point.getAttribute('Lat')), rt3Coordinate(point.getAttribute('Lon'))];
+          const position = [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60];
           if (!position.every(Number.isFinite)) return;
           if (previous && (Math.abs(previous[0] - position[0]) >= 0.00034 || Math.abs(previous[1] - position[1]) >= 0.00034)) {
             distanceNm += distanceNmBetween(previous, position);
@@ -520,129 +498,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     return etas;
   }
 
-  function collectForecastWaypoints(segments) {
-    const found = new Map();
-    const departure = departureWallClockMs();
-    const speed = Number(transitSpeedInput.value);
-    let distanceNm = 0;
-    let previous = null;
-    segments.forEach(route => {
-      try {
-        parseRoute(route).points.forEach(point => {
-          const position = [rt3Coordinate(point.getAttribute('Lat')), rt3Coordinate(point.getAttribute('Lon'))];
-          if (!position.every(Number.isFinite)) return;
-          if (previous && (Math.abs(previous[0] - position[0]) >= 0.00034 || Math.abs(previous[1] - position[1]) >= 0.00034)) {
-            distanceNm += distanceNmBetween(previous, position);
-          }
-          const name = normalizeWaypointName(point.getAttribute('WPName'));
-          const target = FORECAST_WAYPOINTS.find(item => item.aliases.some(alias => name === alias || name.includes(alias)));
-          if (target && !found.has(target.label)) {
-            found.set(target.label, {
-              label: target.label, lat: position[0], lon: position[1],
-              eta: departure !== null && Number.isFinite(speed) && speed > 0 ? departure + distanceNm / speed * 3600000 : null
-            });
-          }
-          previous = position;
-        });
-      } catch (_) {}
-    });
-    return [...found.values()];
-  }
-
-  function compassDirection(degrees) {
-    if (degrees === null || degrees === undefined || !Number.isFinite(Number(degrees))) return 'sin dato';
-    const points = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
-    const value = ((Number(degrees) % 360) + 360) % 360;
-    return `${points[Math.round(value / 22.5) % 16]} (${Math.round(value)}°)`;
-  }
-
-  function forecastHourIndex(hourly, eta) {
-    if (!hourly || !Array.isArray(hourly.time) || !Number.isFinite(eta)) return -1;
-    const targetHour = Math.round(eta / 3600000) * 3600000;
-    let bestIndex = -1;
-    let bestDelta = Infinity;
-    hourly.time.forEach((time, index) => {
-      const timestamp = Date.parse(`${time}:00Z`);
-      const delta = Math.abs(timestamp - targetHour);
-      if (Number.isFinite(timestamp) && delta < bestDelta) { bestDelta = delta; bestIndex = index; }
-    });
-    return bestDelta <= 90 * 60000 ? bestIndex : -1;
-  }
-
-  async function updateMarineForecast(segments) {
-    const requestId = ++forecastRequestId;
-    clearTimeout(forecastTimer);
-    const points = collectForecastWaypoints(segments);
-    forecastPanel.hidden = points.length === 0;
-    forecastList.replaceChildren();
-    forecastStatus.textContent = '';
-    if (!points.length) return;
-    if (points.some(point => point.eta === null)) {
-      forecastStatus.textContent = 'Ingresa la fecha y hora de zarpe y una velocidad para consultar el pronóstico en la ETA.';
-      points.forEach(point => {
-        const card = document.createElement('div'); card.className = 'forecast-card';
-        card.innerHTML = `<strong>${escapeText(point.label)}</strong>Completa ETD y velocidad para ver el pronóstico.`;
-        forecastList.appendChild(card);
-      });
-      return;
-    }
-    forecastStatus.textContent = 'Consultando pronóstico horario para la ETA aproximada de cada WPT…';
-    points.forEach(point => {
-      const card = document.createElement('div'); card.className = 'forecast-card';
-      card.innerHTML = `<strong>${escapeText(point.label)}</strong>ETA estimada: ${escapeText(formatWallClock(point.eta))}<br>Consultando…`;
-      forecastList.appendChild(card);
-    });
-    forecastTimer = setTimeout(async () => {
-      const params = new URLSearchParams({
-        latitude: points.map(point => point.lat).join(','),
-        longitude: points.map(point => point.lon).join(','),
-        hourly: 'wind_speed_10m,wind_direction_10m', wind_speed_unit: 'kn', forecast_days: '16', timezone: 'America/Santiago'
-      });
-      const marineParams = new URLSearchParams({
-        latitude: points.map(point => point.lat).join(','),
-        longitude: points.map(point => point.lon).join(','),
-        hourly: 'wave_height,wave_direction', forecast_days: '16', timezone: 'America/Santiago', cell_selection: 'sea'
-      });
-      try {
-        const results = await Promise.allSettled([
-          fetch(`https://api.open-meteo.com/v1/forecast?${params}`).then(response => { if (!response.ok) throw new Error('Weather API'); return response.json(); }),
-          fetch(`https://marine-api.open-meteo.com/v1/marine?${marineParams}`).then(response => { if (!response.ok) throw new Error('Marine API'); return response.json(); })
-        ]);
-        if (requestId !== forecastRequestId) return;
-        const weatherData = results[0].status === 'fulfilled' ? results[0].value : null;
-        const marineData = results[1].status === 'fulfilled' ? results[1].value : null;
-        const atLocation = (data, index) => Array.isArray(data) ? data[index] : (points.length === 1 ? data : null);
-        forecastList.replaceChildren();
-        points.forEach((point, index) => {
-          const weather = atLocation(weatherData, index);
-          const marine = atLocation(marineData, index);
-          const windIndex = forecastHourIndex(weather && weather.hourly, point.eta);
-          const waveIndex = forecastHourIndex(marine && marine.hourly, point.eta);
-          const available = windIndex >= 0 || waveIndex >= 0;
-          const card = document.createElement('div'); card.className = 'forecast-card';
-          const windSpeed = windIndex >= 0 ? weather.hourly.wind_speed_10m?.[windIndex] : null;
-          const windDir = windIndex >= 0 ? weather.hourly.wind_direction_10m?.[windIndex] : null;
-          const waveHeight = waveIndex >= 0 ? marine.hourly.wave_height?.[waveIndex] : null;
-          const waveDir = waveIndex >= 0 ? marine.hourly.wave_direction?.[waveIndex] : null;
-          const windText = windSpeed !== null && windSpeed !== undefined && Number.isFinite(Number(windSpeed)) ? `${Number(windSpeed).toFixed(1)} kn` : 'sin dato';
-          const waveText = waveHeight !== null && waveHeight !== undefined && Number.isFinite(Number(waveHeight)) ? `${Number(waveHeight).toFixed(1)} m` : 'sin dato';
-          card.innerHTML = `<strong>${escapeText(point.label)}</strong>ETA estimada: ${escapeText(formatWallClock(point.eta))}<br>Viento (10 m): ${windText}, desde ${compassDirection(windDir)}<br>Ola significativa: ${waveText}, desde ${compassDirection(waveDir)}${available ? '' : '<br>Pronóstico no disponible para esa fecha.'}`;
-          forecastList.appendChild(card);
-        });
-        forecastStatus.textContent = results.every(result => result.status === 'fulfilled')
-          ? 'Direcciones referidas al origen del viento y las olas. Valores horarios aproximados.'
-          : 'No fue posible obtener todos los datos. Revisa la conexión a internet e inténtalo de nuevo.';
-      } catch (_) {
-        if (requestId !== forecastRequestId) return;
-        forecastStatus.textContent = 'No se pudo consultar el pronóstico. Revisa la conexión a internet.';
-      }
-    }, 350);
-  }
   function totalDistanceNm(segments) {
     const track = [];
     segments.forEach(segment => {
       try {
-        const points = parseRoute(segment).points.map(point => [rt3Coordinate(point.getAttribute('Lat')), rt3Coordinate(point.getAttribute('Lon'))]);
+        const points = parseRoute(segment).points.map(point => [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60]);
         const valid = points.filter(point => point.every(Number.isFinite));
         if (track.length && valid.length && Math.abs(track.at(-1)[0] - valid[0][0]) < 0.00034 && Math.abs(track.at(-1)[1] - valid[0][1]) < 0.00034) valid.shift();
         track.push(...valid);
@@ -663,7 +523,6 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   }
 
   function renderStep() {
-    updateMarineForecast(selectedSegments);
     updateRouteMap();
     message.textContent = '';
     const start = canonical(originSelect.value);
@@ -847,8 +706,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     return allPoints.map((point, index) => ({
       id: index + 1,
       name: point.getAttribute('WPName') || `WPT ${index + 1}`,
-      lat: rt3Coordinate(point.getAttribute('Lat')),
-      lon: rt3Coordinate(point.getAttribute('Lon')),
+      lat: Number(point.getAttribute('Lat')) / 60,
+      lon: Number(point.getAttribute('Lon')) / 60,
       source: point
     })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lon));
   }
@@ -931,7 +790,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   initializeRouteMap();
   originSelect.addEventListener('change', () => { selectedSegments = []; currentNode = ''; updateDestinationOptions(); renderStep(); });
   destinationSelect.addEventListener('change', () => { selectedSegments = []; currentNode = ''; renderStep(); });
-  const refreshWaypointEtas = () => { if (routeMap && selectedSegments.length) addWaypointLabels(selectedSegments, null, calculateWaypointEtas(selectedSegments)); updateMarineForecast(selectedSegments); };
+  const refreshWaypointEtas = () => { if (routeMap && selectedSegments.length) addWaypointLabels(selectedSegments, null, calculateWaypointEtas(selectedSegments)); };
   [etdDateInput, etdTimeInput].forEach(input => {
     input.addEventListener('input', refreshWaypointEtas);
     input.addEventListener('change', refreshWaypointEtas);
