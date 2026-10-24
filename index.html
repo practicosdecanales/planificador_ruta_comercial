@@ -228,13 +228,14 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     }
     return waypointStartCache;
   }
-  function freeRouteChoicesAt(node, start, visitedNodes, requiredDirection = null, arrivedFromCoronaAtTresCruces = false) {
+  function freeRouteChoicesAt(node, start, visitedNodes, requiredDirection = null, arrivedFromCoronaAtTresCruces = false, arrivedFromAncudAtTresCruces = false) {
     return ROUTES.filter(route => routeAvailableForMode(route, true)
       && route.nodes.length > 1
       && route.nodes[0] === node
       && (!route.onlyOrigin || route.onlyOrigin === start)
       && !(isDirectionRuleWaypoint(node) && requiredDirection && !routeGoesFromWaypointInDirection(route, node, requiredDirection))
       && !(node === 'TRES CRUCES' && arrivedFromCoronaAtTresCruces && route.nodes.includes('ANCUD'))
+      && !(node === 'TRES CRUCES' && arrivedFromAncudAtTresCruces && route.nodes.includes('CORONA'))
       && !route.nodes.slice(1).some(following => visitedNodes.has(following)));
   }
   function findEndpointWaypoint(node) {
@@ -420,7 +421,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     freeRouteLayer.clearLayers();
     const requiredDirection = selectedSegments.length ? requiredDirectionAfterWaypoint(selectedSegments.at(-1)) : null;
     const arrivedFromCoronaAtTresCruces = selectedSegments.length > 0 && routeArrivesAtTresCrucesFromCorona(selectedSegments.at(-1));
-    const candidates = start ? freeRouteChoicesAt(currentNode || start, start, visitedNodes, requiredDirection, arrivedFromCoronaAtTresCruces) : [];
+    const arrivedFromAncudAtTresCruces = selectedSegments.length > 0 && routeArrivesAtTresCrucesFromAncud(selectedSegments.at(-1));
+    const candidates = start ? freeRouteChoicesAt(currentNode || start, start, visitedNodes, requiredDirection, arrivedFromCoronaAtTresCruces, arrivedFromAncudAtTresCruces) : [];
     const candidateEndsShown = new Set();
     candidates.forEach(route => {
       try {
@@ -703,6 +705,10 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     return route?.nodes?.at(-1) === 'TRES CRUCES' && route.nodes.includes('CORONA');
   }
 
+  function routeArrivesAtTresCrucesFromAncud(route) {
+    return route?.nodes?.[0] === 'ANCUD' && route.nodes.at(-1) === 'TRES CRUCES';
+  }
+
   function routeGoesSouthFromWaypoint(route, node) {
     return route?.nodes?.[0] === node
       && Number.isFinite(routeStartLatitude(route))
@@ -830,6 +836,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
         const requiredDirection = selectedSegments.length ? requiredDirectionAfterWaypoint(selectedSegments.at(-1)) : null;
         if (isDirectionRuleWaypoint(currentNode) && requiredDirection && !routeGoesFromWaypointInDirection(route, currentNode, requiredDirection)) return false;
         if (currentNode === 'TRES CRUCES' && selectedSegments.length && routeArrivesAtTresCrucesFromCorona(selectedSegments.at(-1)) && route.nodes.includes('ANCUD')) return false;
+        if (currentNode === 'TRES CRUCES' && selectedSegments.length && routeArrivesAtTresCrucesFromAncud(selectedSegments.at(-1)) && route.nodes.includes('CORONA')) return false;
         return !route.nodes.slice(1).some(node => visitedNodes.has(node));
       } else if (!routeAllowedForTrip(route, start, finish)) return false;
       if (NORTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'TUAP' || route.nodes.includes('TUAP'))) return false;
