@@ -635,7 +635,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       if (!route.nodes.length || route.nodes[0] !== currentNode || (!freeMode && usedFiles.has(route.file))) return false;
       if (freeMode) {
         if (route.onlyOrigin && route.onlyOrigin !== start) return false;
-        return true;
+        // Do not offer a segment that returns to the start or any waypoint
+        // already traversed in the freely assembled route.
+        return !route.nodes.slice(1).some(node => visitedNodes.has(node));
       } else if (!routeAllowedForTrip(route, start, finish)) return false;
       if (NORTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'TUAP' || route.nodes.includes('TUAP'))) return false;
       if (start === 'CHACABUCO' && isNorthboundTrip(start, finish) && (currentNode === 'RAPER' || route.nodes.includes('RAPER'))) return false;
