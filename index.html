@@ -12,7 +12,7 @@
 
  .brand-logos{display:flex;align-items:center;gap:10px;flex:0 0 auto}.brand-item{width:62px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}.brand-item img{display:block;width:54px;height:54px;object-fit:contain}.brand-item span{min-height:18px;color:#52677c;font-size:9px;line-height:1.05;font-weight:750;letter-spacing:.04em}.hero-subtitle{margin:8px 0 0;color:#52677c;font-size:14px;line-height:1.45}
 @media(max-width:720px){.hero{display:block}.brand-logos{margin-bottom:14px}}
-.eta-note{margin:10px 0 0;color:#6a7d90;font-size:12px;line-height:1.45}.speed-control{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.speed-control label{display:flex;align-items:center;gap:10px}.speed-control input{width:110px;text-align:center}.speed-adjust{width:42px;height:42px;border:1px solid #bdcad6;border-radius:9px;background:#fff;color:#174f7e;font-size:23px;font-weight:700;line-height:1;cursor:pointer}.speed-adjust:hover{background:#eef5fa;border-color:#7199bc}.speed-units{color:#52677c;font-size:14px;font-weight:600}.etd-field{display:grid;gap:8px}.etd-title{color:#344a60;font-size:14px;font-weight:650}.etd-input-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}.etd-input-wrap label{min-width:0}.etd-input-wrap input{min-width:0;min-height:48px;padding:8px;font-size:16px;touch-action:manipulation}
+ .eta-note{margin:10px 0 0;color:#6a7d90;font-size:12px;line-height:1.45}.speed-control{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.speed-control label{display:flex;align-items:center;gap:10px}.speed-control input{width:110px;text-align:center}.speed-adjust{width:42px;height:42px;border:1px solid #bdcad6;border-radius:9px;background:#fff;color:#174f7e;font-size:23px;font-weight:700;line-height:1;cursor:pointer}.speed-adjust:hover{background:#eef5fa;border-color:#7199bc}.speed-units{color:#52677c;font-size:14px;font-weight:600}.etd-field{display:grid;gap:8px}.etd-title{color:#344a60;font-size:14px;font-weight:650}.etd-input-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}.etd-input-wrap label{min-width:0}.etd-input-wrap input{min-width:0;min-height:48px;padding:8px;font-size:16px;touch-action:manipulation}#destination-field[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -29,15 +29,16 @@
       <div class="section-title"><span class="step">1</span><div><h2 id="datos-title">Datos del viaje</h2><p>El nombre de la nave aparecerá en el archivo descargado.</p></div></div>
       <div class="fields">
         <label>Nombre de la nave<input id="ship" type="text" autocomplete="off" placeholder="Ej.: NAVE EJEMPLO" maxlength="80"></label>
-        <label>Puerto de origen<select id="origin"><option value="">Selecciona el origen</option></select></label>
-        <label>Puerto de destino<select id="destination"><option value="">Selecciona el destino</option></select></label>
+        <label>Tipo de planificación<select id="route-mode"><option value="destination">Origen y destino</option><option value="free">Editar ruta libre</option></select></label>
+        <label id="origin-label">Puerto de origen<select id="origin"><option value="">Selecciona el origen</option></select></label>
+        <label id="destination-field">Puerto de destino<select id="destination"><option value="">Selecciona el destino</option></select></label>
         <div class="etd-field"><span class="etd-title">ETD · fecha y hora local de zarpe</span><div class="etd-input-wrap"><label>Fecha<input id="etd-date" type="date" aria-label="Fecha local de zarpe"></label><label>Hora<input id="etd-time" type="time" aria-label="Hora local de zarpe"></label></div></div>
       </div>
       <p class="eta-note">Ingresa el ETD para ver las ETA.</p>
     </section>
 
     <section class="panel" id="route-panel" aria-labelledby="route-title">
-      <div class="section-title"><span class="step">2</span><div><h2 id="route-title">Elige el siguiente tramo</h2><p>Sigue las flechas del diagrama y elige una ruta en cada punto de decisión.</p></div></div>
+      <div class="section-title"><span class="step">2</span><div><h2 id="route-title">Elige el siguiente tramo</h2><p id="route-instructions">Sigue las flechas del diagrama y elige una ruta en cada punto de decisión.</p></div></div>
       <div id="route-list" class="route-list"><p class="empty">Primero completa los datos del viaje.</p></div>
       <div class="route-map-wrap"><p class="route-map-heading">Mapa de referencia <span id="route-map-status" class="route-map-status">El mapa mostrará los tramos que elijas.</span></p><div id="route-map" role="application" aria-label="Mapa de referencia y recorrido seleccionado"></div><p id="route-map-message" class="route-map-message" role="status" aria-live="polite">Las cartas recibidas se combinan; en los solapes, la de mayor detalle queda encima.</p><div class="speed-control"><label for="transit-speed">Velocidad de tránsito</label><button id="speed-decrease" class="speed-adjust" type="button" aria-label="Disminuir velocidad">−</button><input id="transit-speed" type="number" min="0.1" step="0.1" value="12.0" inputmode="decimal" aria-label="Velocidad de tránsito en nudos"><button id="speed-increase" class="speed-adjust" type="button" aria-label="Aumentar velocidad">+</button><span class="speed-units">nudos</span></div><p class="eta-note">El cálculo de ETA supone velocidad constante y no considera detenciones ni cambios de velocidad.</p></div>
     </section>
@@ -138,6 +139,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   }
   const originSelect = document.getElementById('origin');
   const destinationSelect = document.getElementById('destination');
+  const routeModeSelect = document.getElementById('route-mode');
+  const originLabel = document.getElementById('origin-label');
+  const destinationField = document.getElementById('destination-field');
+  const routeTitle = document.getElementById('route-title');
+  const routeInstructions = document.getElementById('route-instructions');
   const shipInput = document.getElementById('ship');
   const etdDateInput = document.getElementById('etd-date');
   const etdTimeInput = document.getElementById('etd-time');
@@ -264,6 +270,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   let routeMarkers = null;
   let waypointLayer = null;
   let selectedSegments = [];
+  let freeRouteFinished = false;
   let currentNode = '';
 
   function canonical(value) {
@@ -341,7 +348,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   function routeBaseFilename() {
     const ship = cleanFilePart(shipInput.value) || 'NAVE';
     const origin = cleanFilePart(originSelect.value) || 'ORIGEN';
-    const destination = cleanFilePart(destinationSelect.value) || 'DESTINO';
+    const destination = cleanFilePart(routeModeSelect.value === 'free' ? currentNode : destinationSelect.value) || 'DESTINO';
     return `${ship}-${origin}-${destination}`;
   }
 
@@ -385,6 +392,45 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (destinations.some(destination => destination.value === canonical(previous))) {
       destinationSelect.value = canonical(previous);
     }
+  }
+
+  function updateRouteModeOptions() {
+    const freeMode = routeModeSelect.value === 'free';
+    selectedSegments = [];
+    currentNode = '';
+    freeRouteFinished = false;
+    destinationField.hidden = freeMode;
+    destinationSelect.disabled = freeMode || !originSelect.value;
+    originLabel.firstChild.textContent = freeMode ? 'Waypoint de inicio' : 'Puerto de origen';
+    routeTitle.textContent = freeMode ? 'Edita tu ruta tramo por tramo' : 'Elige el siguiente tramo';
+    routeInstructions.textContent = freeMode
+      ? 'En cada punto, elige libremente uno de los tramos disponibles para continuar.'
+      : 'Sigue las flechas del diagrama y elige una ruta en cada punto de decisión.';
+    if (freeMode) {
+      const starts = [...new Set(ROUTES.filter(route => route.nodes.length > 1).map(route => route.nodes[0]))].sort((a, b) => {
+        const latitudeDifference = waypointLatitude(b) - waypointLatitude(a);
+        return Number.isFinite(latitudeDifference) && latitudeDifference ? latitudeDifference : a.localeCompare(b, 'es');
+      });
+      fillSelect(originSelect, starts, 'Selecciona el WP de inicio');
+      fillSelect(destinationSelect, [], 'No se requiere destino');
+    } else {
+      fillSelect(originSelect, ORIGINS, 'Selecciona el origen');
+      updateDestinationOptions();
+    }
+    renderStep();
+  }
+
+  function handleOriginChange() {
+    selectedSegments = [];
+    currentNode = '';
+    freeRouteFinished = false;
+    if (routeModeSelect.value === 'free') {
+      destinationSelect.value = '';
+      destinationSelect.disabled = true;
+    } else {
+      updateDestinationOptions();
+    }
+    renderStep();
   }
 
   function canReachDestination(from, finish, initialUsedFiles, initialVisitedNodes) {
@@ -484,6 +530,18 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     }
   }
 
+  function waypointLatitude(node) {
+    for (const route of ROUTES) {
+      if (route.nodes[0] !== node) continue;
+      try {
+        const first = parseRoute(route).points[0];
+        const latitude = Number(first && first.getAttribute('Lat')) / 60;
+        if (Number.isFinite(latitude)) return latitude;
+      } catch (_) {}
+    }
+    return Number.NEGATIVE_INFINITY;
+  }
+
   function calculateWaypointEtas(segments) {
     const etas = new Map();
     const departure = departureWallClockMs();
@@ -539,11 +597,12 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const start = canonical(originSelect.value);
     const finish = canonical(destinationSelect.value);
     preview.textContent = `El archivo se llamará ${chosenFilename()}`;
-    if (!start || !finish) {
-      routeList.innerHTML = '<p class="empty">Primero completa los datos del viaje.</p>';
+    const freeMode = routeModeSelect.value === 'free';
+    if (!start || (!freeMode && !finish)) {
+      routeList.innerHTML = `<p class="empty">${freeMode ? 'Primero selecciona el waypoint de inicio.' : 'Primero completa los datos del viaje.'}</p>`;
       summary.textContent = 'Selecciona una alternativa para ir armando el recorrido.';
       downloadButton.disabled = true;
-      downloadHint.textContent = 'Selecciona el origen y el destino para comenzar.';
+      downloadHint.textContent = freeMode ? 'Selecciona el WP de inicio y construye tu ruta tramo por tramo.' : 'Selecciona el origen y el destino para comenzar.';
       downloadHint.classList.remove('ready');
       return;
     }
@@ -557,7 +616,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       ? `Recorrido elegido: ${escapeText(planLabel(selectedSegments))}.`
       : 'Aún no has elegido un tramo. El recorrido se irá armando aquí, paso a paso.';
 
-    const complete = currentNode === finish && selectedSegments.length > 0;
+    const complete = selectedSegments.length > 0 && (freeMode ? freeRouteFinished : currentNode === finish);
     downloadButton.disabled = !complete || !cleanFilePart(shipInput.value);
     downloadHint.classList.toggle('ready', complete && Boolean(cleanFilePart(shipInput.value)));
     downloadHint.textContent = complete
@@ -566,13 +625,18 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (complete) {
       const distance = totalDistanceNm(selectedSegments).toLocaleString('es-CL', { maximumFractionDigits: 1 });
       summary.innerHTML = `Recorrido elegido: ${escapeText(planLabel(selectedSegments))}.<br><strong>Distancia total: ${distance} millas náuticas (MN).</strong>`;
-      routeList.innerHTML = `<p class="complete-message">¡Llegaste a ${escapeText(finish)}! La ruta está completa.${cleanFilePart(shipInput.value) ? '' : ' Escribe el nombre de la nave para habilitar la descarga.'}</p>`;
+      routeList.innerHTML = `<p class="complete-message">${freeMode ? `Edición finalizada en ${escapeText(currentNode)}.` : `¡Llegaste a ${escapeText(finish)}! La ruta está completa.`}${cleanFilePart(shipInput.value) ? '' : ' Escribe el nombre de la nave para habilitar la descarga.'}</p>`;
       addBackButton();
+      if (freeMode) addContinueEditingButton();
       return;
     }
 
     const choices = ROUTES.filter(route => {
-      if (!route.nodes.length || route.nodes[0] !== currentNode || usedFiles.has(route.file) || !routeAllowedForTrip(route, start, finish)) return false;
+      if (!route.nodes.length || route.nodes[0] !== currentNode || (!freeMode && usedFiles.has(route.file))) return false;
+      if (freeMode) {
+        if (route.onlyOrigin && route.onlyOrigin !== start) return false;
+        return true;
+      } else if (!routeAllowedForTrip(route, start, finish)) return false;
       if (NORTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'TUAP' || route.nodes.includes('TUAP'))) return false;
       if (start === 'CHACABUCO' && isNorthboundTrip(start, finish) && (currentNode === 'RAPER' || route.nodes.includes('RAPER'))) return false;
       if (SOUTHBOUND_ORIGINS.includes(start) && finish === 'CHACABUCO' && (currentNode === 'RAPER' || route.nodes.includes('RAPER'))) return false;
@@ -601,7 +665,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
 
     const heading = document.createElement('p');
     heading.className = 'current-location';
-    heading.innerHTML = `Estás en <strong>${escapeText(currentNode)}</strong>. Elige una ruta hacia uno de los siguientes puntos:`;
+    heading.innerHTML = `Estás en <strong>${escapeText(currentNode)}</strong>. ${freeMode ? 'Elige libremente el siguiente tramo:' : 'Elige una ruta hacia uno de los siguientes puntos:'}`;
     routeList.appendChild(heading);
     if (!choices.length) {
       const empty = document.createElement('p');
@@ -629,7 +693,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
           button.setAttribute('aria-label', route.nodes.join(' hacia '));
           const flowNodes = route.nodes.map((node, index) => {
             const isOrigin = selectedSegments.length === 0 && index === 0 && node === start;
-            const isDestination = index === route.nodes.length - 1 && node === finish;
+            const isDestination = !freeMode && index === route.nodes.length - 1 && node === finish;
             const nodeClass = isOrigin ? 'flow-origin' : isDestination ? 'flow-destination' : 'flow-main';
             const arrow = index ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
             return `${arrow}<span class="flow-node ${nodeClass}">${escapeText(node)}</span>`;
@@ -644,7 +708,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
           });
           activeGroup.appendChild(button);
       });
-    }    if (selectedSegments.length) addBackButton();
+    }
+    if (selectedSegments.length) {
+      addBackButton();
+      if (freeMode) addFinishEditingButton();
+    }
   }
 
   function addBackButton() {
@@ -654,10 +722,29 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     back.textContent = 'Deshacer último tramo';
     back.addEventListener('click', () => {
       selectedSegments.pop();
+      freeRouteFinished = false;
       currentNode = selectedSegments.length ? selectedSegments[selectedSegments.length - 1].nodes.at(-1) : canonical(originSelect.value);
       renderStep();
     });
     routeList.appendChild(back);
+  }
+
+  function addFinishEditingButton() {
+    const finish = document.createElement('button');
+    finish.type = 'button';
+    finish.className = 'download';
+    finish.textContent = 'Finalizar edición';
+    finish.addEventListener('click', () => { freeRouteFinished = true; renderStep(); });
+    routeList.appendChild(finish);
+  }
+
+  function addContinueEditingButton() {
+    const resume = document.createElement('button');
+    resume.type = 'button';
+    resume.className = 'back-step';
+    resume.textContent = 'Continuar editando';
+    resume.addEventListener('click', () => { freeRouteFinished = false; renderStep(); });
+    routeList.appendChild(resume);
   }
 
   function samePoint(a, b) {
@@ -766,7 +853,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   }
 
   function download() {
-    if (!selectedSegments.length || currentNode !== canonical(destinationSelect.value) || !cleanFilePart(shipInput.value)) return;
+    const complete = routeModeSelect.value === 'free' ? freeRouteFinished : currentNode === canonical(destinationSelect.value);
+    if (!selectedSegments.length || !complete || !cleanFilePart(shipInput.value)) return;
     try {
       const format = formatSelect.value;
       let content;
@@ -799,8 +887,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   fillSelect(destinationSelect, [], 'Selecciona primero el origen');
   destinationSelect.disabled = true;
   initializeRouteMap();
-  originSelect.addEventListener('change', () => { selectedSegments = []; currentNode = ''; updateDestinationOptions(); renderStep(); });
+  originSelect.addEventListener('change', handleOriginChange);
   destinationSelect.addEventListener('change', () => { selectedSegments = []; currentNode = ''; renderStep(); });
+  routeModeSelect.addEventListener('change', updateRouteModeOptions);
   const refreshWaypointEtas = () => { if (routeMap && selectedSegments.length) addWaypointLabels(selectedSegments, null, calculateWaypointEtas(selectedSegments)); };
   [etdDateInput, etdTimeInput].forEach(input => {
     input.addEventListener('input', refreshWaypointEtas);
