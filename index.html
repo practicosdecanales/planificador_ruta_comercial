@@ -91,6 +91,12 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (!REVERSED_NORTHBOUND_CONNECTORS.has(route.file)) return [normalized];
     return [normalized, { ...normalized, nodes: normalized.nodes.slice().reverse(), reverse: !normalized.reverse }];
   });
+  // Add a file here only after the user identifies its RT3 as a free-route segment.
+  // All currently loaded routes remain in the origin-and-destination planner.
+  const FREE_ROUTE_FILES = new Set([]);
+  function routeAvailableForMode(route, freeMode) {
+    return freeMode ? FREE_ROUTE_FILES.has(route.file) : !FREE_ROUTE_FILES.has(route.file);
+  }
   const SOUTHBOUND_ORIGINS = ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT','CALBUCO','LAITEC'];
   const NORTHBOUND_ORIGINS = ['POSESION','PARENAS','CABO NEGRO','GUARELLO'];
   const SOUTHBOUND_ONLY_GUARELLO_ROUTES = new Set(['RAPER-GUARELLO.rt3','STRATFORD-GUARELLO.rt3']);
@@ -206,6 +212,29 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     'GUARELLO': { label: 'F GUARELLO', aliases: ['F GUARELLO'] }
   };
   const endpointCoordinateCache = new Map();
+  let waypointStartCache = null;
+  function waypointStartPoints() {
+    if (waypointStartCache) return waypointStartCache;
+    waypointStartCache = new Map();
+    for (const route of ROUTES) {
+      const node = route.nodes[0];
+      if (!node || waypointStartCache.has(node)) continue;
+      try {
+        const point = parseRoute(route).points[0];
+        const lat = Number(point && point.getAttribute('Lat')) / 60;
+        const lon = Number(point && point.getAttribute('Lon')) / 60;
+        if (Number.isFinite(lat) && Number.isFinite(lon)) waypointStartCache.set(node, { lat, lon });
+      } catch (_) {}
+    }
+    return waypointStartCache;
+  }
+  function freeRouteChoicesAt(node, start, visitedNodes) {
+    return ROUTES.filter(route => routeAvailableForMode(route, true)
+      && route.nodes.length > 1
+      && route.nodes[0] === node
+      && (!route.onlyOrigin || route.onlyOrigin === start)
+      && !route.nodes.slice(1).some(following => visitedNodes.has(following)));
+  }
   function findEndpointWaypoint(node) {
     const key = canonical(node);
     if (endpointCoordinateCache.has(key)) return endpointCoordinateCache.get(key);
@@ -269,6 +298,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   let routeLine = null;
   let routeMarkers = null;
   let waypointLayer = null;
+  let freeRouteLayer = null;
+  let freeStartLayer = null;
   let selectedSegments = [];
   let freeRouteFinished = false;
   let currentNode = '';
@@ -303,11 +334,19 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     routeLine = L.polyline([], { color: '#ffd400', weight: 5, opacity: 1 }).addTo(routeMap);
     routeMarkers = L.layerGroup().addTo(routeMap);
     waypointLayer = L.layerGroup().addTo(routeMap);
+    freeRouteLayer = L.layerGroup().addTo(routeMap);
+    freeStartLayer = L.layerGroup().addTo(routeMap);
     routeMap.fitBounds(INITIAL_VIEW_BOUNDS, { padding: [12, 12] });
   }
 
   function updateRouteMap() {
     if (!routeMap) return;
+    if (routeModeSelect.value === 'free') {
+      updateFreeRouteMap();
+      return;
+    }
+    freeRouteLayer.clearLayers();
+    freeStartLayer.clearLayers();
     const latlngs = [];
     let lastSegmentLatLngs = [];
     selectedSegments.forEach(segment => {
@@ -343,6 +382,69 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     mapMessage.textContent = '';
     if (lastSegmentLatLngs.length > 1) routeMap.fitBounds(L.latLngBounds(lastSegmentLatLngs), { padding: [36, 36], maxZoom: 8 });
     else routeMap.setView(lastSegmentLatLngs[0] || latlngs.at(-1), 7);
+  }
+
+  function updateFreeRouteMap() {
+    const start = canonical(originSelect.value);
+    const visitedNodes = new Set([start]);
+    selectedSegments.forEach(segment => segment.nodes.forEach(node => visitedNodes.add(node)));
+    const startPoints = waypointStartPoints();
+    freeStartLayer.clearLayers();
+    startPoints.forEach((point, node) => {
+      const selected = node === start;
+      L.circleMarker([point.lat, point.lon], {
+        radius: selected ? 7 : 5,
+        color: selected ? '#123a67' : '#54758f',
+        fillColor: selected ? '#ffd400' : '#fff',
+        fillOpacity: 1,
+        weight: selected ? 3 : 2
+      })
+        .bindTooltip(`Inicio: ${node}`, { permanent: true, direction: 'right', offset: [5, 0], className: 'waypoint-label', opacity: 1 })
+        .on('click', () => {
+          if (originSelect.value === node) return;
+          originSelect.value = node;
+          originSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        })
+        .addTo(freeStartLayer);
+    });
+
+    freeRouteLayer.clearLayers();
+    const candidates = start ? freeRouteChoicesAt(currentNode || start, start, visitedNodes) : [];
+    candidates.forEach(route => {
+      try {
+        const points = parseRoute(route).points
+          .map(point => [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60])
+          .filter(point => point.every(Number.isFinite));
+        if (points.length > 1) L.polyline(points, { color: '#929ba5', weight: 4, opacity: 0.85 }).addTo(freeRouteLayer);
+      } catch (_) {}
+    });
+
+    const selectedLatLngs = [];
+    selectedSegments.forEach(segment => {
+      try {
+        const points = parseRoute(segment).points
+          .map(point => [Number(point.getAttribute('Lat')) / 60, Number(point.getAttribute('Lon')) / 60])
+          .filter(point => point.every(Number.isFinite));
+        if (selectedLatLngs.length && points.length && Math.abs(selectedLatLngs.at(-1)[0] - points[0][0]) < 0.00034 && Math.abs(selectedLatLngs.at(-1)[1] - points[0][1]) < 0.00034) points.shift();
+        selectedLatLngs.push(...points);
+      } catch (_) {}
+    });
+    routeLine.setLatLngs(selectedLatLngs);
+    routeLine.bringToFront();
+    routeMarkers.clearLayers();
+    waypointLayer.clearLayers();
+    if (selectedLatLngs.length) {
+      L.circleMarker(selectedLatLngs[0], { radius: 7, color: '#123a67', fillColor: '#fff', fillOpacity: 1, weight: 3 })
+        .bindTooltip('Inicio: ' + start).addTo(routeMarkers);
+      L.circleMarker(selectedLatLngs.at(-1), { radius: 7, color: '#a73535', fillColor: '#fff', fillOpacity: 1, weight: 3 })
+        .bindTooltip('Actual: ' + currentNode).addTo(routeMarkers);
+      addWaypointLabels(selectedSegments, null, calculateWaypointEtas(selectedSegments));
+    }
+    mapStatus.textContent = start
+      ? `Waypoints iniciales en azul · ${candidates.length} tramo(s) disponible(s) en gris · ${selectedSegments.length} tramo(s) elegido(s) en amarillo.`
+      : `Waypoints iniciales en azul · ${FREE_ROUTE_FILES.size ? 'elige uno para ver los tramos disponibles en gris.' : 'aún no hay tramos designados para esta modalidad.'}`;
+    mapMessage.textContent = 'Selecciona un waypoint de inicio en el mapa o en la lista. Los tramos libres aparecerán en gris y los elegidos en amarillo.';
+    routeMap.fitBounds(INITIAL_VIEW_BOUNDS, { padding: [12, 12] });
   }
 
   function routeBaseFilename() {
@@ -407,13 +509,15 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       ? 'En cada punto, elige libremente uno de los tramos disponibles para continuar.'
       : 'Sigue las flechas del diagrama y elige una ruta en cada punto de decisión.';
     if (freeMode) {
-      const starts = [...new Set(ROUTES.filter(route => route.nodes.length > 1).map(route => route.nodes[0]))].sort((a, b) => {
+      const starts = [...new Set(ROUTES.filter(route => routeAvailableForMode(route, true) && route.nodes.length > 1).map(route => route.nodes[0]))].sort((a, b) => {
         const latitudeDifference = waypointLatitude(b) - waypointLatitude(a);
         return Number.isFinite(latitudeDifference) && latitudeDifference ? latitudeDifference : a.localeCompare(b, 'es');
       });
-      fillSelect(originSelect, starts, 'Selecciona el WP de inicio');
+      fillSelect(originSelect, starts, starts.length ? 'Selecciona el WP de inicio' : 'No hay tramos para ruta libre');
+      originSelect.disabled = starts.length === 0;
       fillSelect(destinationSelect, [], 'No se requiere destino');
     } else {
+      originSelect.disabled = false;
       fillSelect(originSelect, ORIGINS, 'Selecciona el origen');
       updateDestinationOptions();
     }
@@ -444,7 +548,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       if (seenStates.has(stateKey)) continue;
       seenStates.add(stateKey);
       for (const route of ROUTES) {
-        if (!route.nodes.length || route.nodes[0] !== state.at || state.usedFiles.has(route.file) || !routeAllowedForTrip(route, originSelect.value, finish)) continue;
+        if (!routeAvailableForMode(route, false) || !route.nodes.length || route.nodes[0] !== state.at || state.usedFiles.has(route.file) || !routeAllowedForTrip(route, originSelect.value, finish)) continue;
         if (NORTHBOUND_ORIGINS.includes(canonical(originSelect.value)) && finish === 'CHACABUCO' && (state.at === 'TUAP' || route.nodes.includes('TUAP'))) continue;
         if (canonical(originSelect.value) === 'CHACABUCO' && isNorthboundTrip(originSelect.value, finish) && (state.at === 'RAPER' || route.nodes.includes('RAPER'))) continue;
         if (SOUTHBOUND_ORIGINS.includes(canonical(originSelect.value)) && finish === 'CHACABUCO' && (state.at === 'RAPER' || route.nodes.includes('RAPER'))) continue;
@@ -599,10 +703,15 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     preview.textContent = `El archivo se llamará ${chosenFilename()}`;
     const freeMode = routeModeSelect.value === 'free';
     if (!start || (!freeMode && !finish)) {
-      routeList.innerHTML = `<p class="empty">${freeMode ? 'Primero selecciona el waypoint de inicio.' : 'Primero completa los datos del viaje.'}</p>`;
+      const emptyMessage = freeMode && !FREE_ROUTE_FILES.size
+        ? 'Aún no hay tramos designados para «Editar ruta libre». Cuando me envíes rutas RT3 para esta modalidad, las incorporaré aquí.'
+        : freeMode ? 'Primero selecciona el waypoint de inicio.' : 'Primero completa los datos del viaje.';
+      routeList.innerHTML = `<p class="empty">${emptyMessage}</p>`;
       summary.textContent = 'Selecciona una alternativa para ir armando el recorrido.';
       downloadButton.disabled = true;
-      downloadHint.textContent = freeMode ? 'Selecciona el WP de inicio y construye tu ruta tramo por tramo.' : 'Selecciona el origen y el destino para comenzar.';
+      downloadHint.textContent = freeMode
+        ? (!FREE_ROUTE_FILES.size ? 'La modalidad libre se habilitará al agregar rutas identificadas para ella.' : 'Selecciona el WP de inicio y construye tu ruta tramo por tramo.')
+        : 'Selecciona el origen y el destino para comenzar.';
       downloadHint.classList.remove('ready');
       return;
     }
@@ -632,7 +741,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     }
 
     const choices = ROUTES.filter(route => {
-      if (!route.nodes.length || route.nodes[0] !== currentNode || (!freeMode && usedFiles.has(route.file))) return false;
+      if (!routeAvailableForMode(route, freeMode) || !route.nodes.length || route.nodes[0] !== currentNode || (!freeMode && usedFiles.has(route.file))) return false;
       if (freeMode) {
         if (route.onlyOrigin && route.onlyOrigin !== start) return false;
         // Do not offer a segment that returns to the start or any waypoint
