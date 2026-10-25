@@ -667,6 +667,26 @@ window.FREE_RT3_DATA = [{"file":"ANCUD-RAPER.rt3","nodes":["ANCUD","RAPER"],"con
     }
   }
 
+  function routeGeometryKey(route) {
+    try {
+      return parseRoute(route).points
+        .map(point => `${Number(point.getAttribute('Lat'))},${Number(point.getAttribute('Lon'))}`)
+        .join('|');
+    } catch (_) {
+      return `${route.file}:${route.nodes.join('>')}`;
+    }
+  }
+
+  function dedupeRouteChoices(routes) {
+    const seenGeometry = new Set();
+    return routes.filter(route => {
+      const geometry = routeGeometryKey(route);
+      if (seenGeometry.has(geometry)) return false;
+      seenGeometry.add(geometry);
+      return true;
+    });
+  }
+
   function routeEndLatitude(route) {
     try {
       const points = parseRoute(route).points;
@@ -828,7 +848,7 @@ window.FREE_RT3_DATA = [{"file":"ANCUD-RAPER.rt3","nodes":["ANCUD","RAPER"],"con
       return;
     }
 
-    const choices = ROUTES.filter(route => {
+    const choices = dedupeRouteChoices(ROUTES.filter(route => {
       if (!routeAvailableForMode(route, freeMode) || !route.nodes.length || route.nodes[0] !== currentNode || (!freeMode && usedFiles.has(route.file))) return false;
       if (freeMode) {
         if (route.onlyOrigin && route.onlyOrigin !== start) return false;
@@ -854,7 +874,7 @@ window.FREE_RT3_DATA = [{"file":"ANCUD-RAPER.rt3","nodes":["ANCUD","RAPER"],"con
       const nextNodes = new Set(visitedNodes);
       followingNodes.forEach(node => nextNodes.add(node));
       return canReachDestination(route.nodes.at(-1), finish, nextFiles, nextNodes);
-    });
+    }));
     choices.sort((a, b) => {
       const aViaRaperGuafo = currentNode === 'TRES CRUCES' && a.nodes.includes('GUAFO') && a.nodes.includes('RAPER');
       const bViaRaperGuafo = currentNode === 'TRES CRUCES' && b.nodes.includes('GUAFO') && b.nodes.includes('RAPER');
