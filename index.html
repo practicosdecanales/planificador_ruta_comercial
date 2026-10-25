@@ -128,7 +128,13 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     return NORTHBOUND_ORIGINS.includes(start);
   }
   function routeAllowedForTrip(route, origin, finish) {
-    if (route.onlyOrigin && route.onlyOrigin !== canonical(origin)) return false;
+    const start = canonical(origin);
+    const end = canonical(finish);
+    const southernPorts = new Set(['PUERTO USHUAIA', 'PUERTO WILLIAMS']);
+    const puntaArenasPortTrip = (start === 'PARENAS' && southernPorts.has(end)) || (southernPorts.has(start) && end === 'PARENAS');
+    const passesFalgate = route.nodes.includes('FALGATE') || /WPName="[^"]*FALGATE[^"]*"/i.test(route.content || '');
+    if (puntaArenasPortTrip && passesFalgate) return false;
+    if (route.onlyOrigin && route.onlyOrigin !== start) return false;
     if (route.onlyDirection && route.onlyDirection !== (isNorthboundTrip(origin, finish) ? 'north' : 'south')) return false;
     return true;
   }
