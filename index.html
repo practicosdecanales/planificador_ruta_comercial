@@ -102,7 +102,6 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   const SOUTHBOUND_ONLY_GUARELLO_ROUTES = new Set(['RAPER-GUARELLO.rt3','STRATFORD-GUARELLO.rt3']);
   const ORIGINS = ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT',{value:'CALBUCO',label:'CALBUCO (PUERTO SAN JOSÉ)'},'LAITEC','CHACABUCO','GUARELLO','POSESION','CABO NEGRO','PARENAS','PUERTO USHUAIA','PUERTO WILLIAMS'];
   const SOUTHBOUND_DESTINATIONS = [
-    { value:'PUERTO MONTT', label:'PUERTO MONTT' },
     { value:'CHACABUCO', label:'CHACABUCO' },
     { value:'GUARELLO', label:'GUARELLO' },
     { value:'POSESION', label:'POSESIÓN' },
@@ -124,6 +123,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     { value:'LAITEC', label:'LAITEC' },
     { value:'CHACABUCO', label:'CHACABUCO' }
   ];
+  const NORTH_OF_TRES_CRUCES_PORTS = new Set(['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','CALBUCO']);
+  const NORTHERN_DESTINATIONS_FROM_PUERTO_MONTT = NORTH_OF_TRES_CRUCES_PORTS;
+  const TRES_CRUCES_LATITUDE_RAW = -2509.04022;
   const SOUTHBOUND_TERMINALS = new Set(['POSESION','PARENAS','CABO NEGRO','CHACABUCO','GUARELLO','PUERTO WILLIAMS','PUERTO USHUAIA']);
   const NORTHBOUND_TERMINALS = new Set(['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT','CALBUCO','LAITEC','CHACABUCO']);
   function isNorthboundTrip(origin, finish) {
@@ -131,16 +133,37 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const end = canonical(finish);
     if (start === 'PARENAS' && (end === 'PUERTO USHUAIA' || end === 'PUERTO WILLIAMS')) return false;
     if ((start === 'PUERTO USHUAIA' || start === 'PUERTO WILLIAMS') && end === 'PARENAS') return true;
-    if (start === 'PUERTO MONTT') return ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','CALBUCO'].includes(end);
+    if (start === 'PUERTO MONTT') return NORTHERN_DESTINATIONS_FROM_PUERTO_MONTT.has(end);
     if (start === 'CHACABUCO') {
       return NORTHBOUND_DESTINATIONS.some(destination => canonical(destination.value) === canonical(finish) && canonical(finish) !== 'CHACABUCO');
     }
     if (start === 'LAITEC' && canonical(finish) === 'CALBUCO') return true;
     return NORTHBOUND_ORIGINS.includes(start);
   }
+  function isPuertoMonttNorthSideTrip(origin, finish) {
+    const start = canonical(origin);
+    const end = canonical(finish);
+    return (start === 'PUERTO MONTT' && NORTH_OF_TRES_CRUCES_PORTS.has(end))
+      || (end === 'PUERTO MONTT' && NORTH_OF_TRES_CRUCES_PORTS.has(start));
+  }
+  function routeGoesSouthOfTresCruces(route) {
+    const startsAtTresCruces = route.nodes[0] === 'TRES CRUCES';
+    const endsAtTresCruces = route.nodes.at(-1) === 'TRES CRUCES';
+    const isPuertoMonttConnectorFromTresCruces = startsAtTresCruces && route.nodes.at(-1) === 'PUERTO MONTT';
+    if (endsAtTresCruces || isPuertoMonttConnectorFromTresCruces) return false;
+    try {
+      return parseRoute(route).points.some(point => {
+        const latitude = Number(point.getAttribute('Lat'));
+        return Number.isFinite(latitude) && latitude < TRES_CRUCES_LATITUDE_RAW - 0.00002;
+      });
+    } catch (_) {
+      return true;
+    }
+  }
   function routeAllowedForTrip(route, origin, finish) {
     const start = canonical(origin);
     const end = canonical(finish);
+    if (isPuertoMonttNorthSideTrip(start, end) && routeGoesSouthOfTresCruces(route)) return false;
     const southernPorts = new Set(['PUERTO USHUAIA', 'PUERTO WILLIAMS']);
     const puntaArenasPortTrip = (start === 'PARENAS' && southernPorts.has(end)) || (southernPorts.has(start) && end === 'PARENAS');
     const passesFalgate = route.nodes.includes('FALGATE') || /WPName="[^"]*FALGATE[^"]*"/i.test(route.content || '');
@@ -406,9 +429,13 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
         : origin === 'LAITEC'
           ? [...SOUTHBOUND_DESTINATIONS, ...NORTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) === 'CALBUCO')]
           : northbound ? NORTHBOUND_DESTINATIONS : SOUTHBOUND_DESTINATIONS;
-    fillSelect(destinationSelect, destinations, originSelect.value ? 'Selecciona el destino' : 'Selecciona primero el origen');
+    const visibleDestinations = NORTH_OF_TRES_CRUCES_PORTS.has(origin) && origin !== 'PUERTO MONTT'
+      ? [...destinations, { value:'PUERTO MONTT', label:'PUERTO MONTT' }]
+          .filter((destination, index, all) => all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
+      : destinations;
+    fillSelect(destinationSelect, visibleDestinations, originSelect.value ? 'Selecciona el destino' : 'Selecciona primero el origen');
     destinationSelect.disabled = !originSelect.value;
-    if (destinations.some(destination => destination.value === canonical(previous))) {
+    if (visibleDestinations.some(destination => destination.value === canonical(previous))) {
       destinationSelect.value = canonical(previous);
     }
   }
