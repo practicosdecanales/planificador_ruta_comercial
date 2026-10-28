@@ -194,6 +194,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (castroMode === 'puerto-montt' && !CASTRO_PUERTO_MONTT_CONNECTORS.has(route.file)) return false;
     if (castroMode === 'tuap' && !CASTRO_TUAP_CONNECTORS.has(route.file)) return false;
     if (castroMode === 'tres-cruces' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TRES_CRUCES_CONNECTORS.has(route.file)) return false;
+    if (castroMode === 'tres-cruces' && route.nodes.includes('RAPER')) return false;
     if (castroMode === 'via-tuap' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TUAP_CONNECTORS.has(route.file)) return false;
     if (isPuertoMonttNorthSideTrip(start, end) && routeGoesSouthOfTresCruces(route)) return false;
     if (requiresTresCrucesForPuertoMontt(start, end) && route.nodes.includes('RAPER')) return false;
