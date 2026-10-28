@@ -493,7 +493,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
       : origin === 'CALBUCO'
         ? SOUTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) !== 'CASTRO' && !NORTHBOUND_DESTINATIONS.some(northboundDestination => canonical(northboundDestination.value) === canonical(destination.value)))
         : origin === 'LAITEC'
-          ? [...SOUTHBOUND_DESTINATIONS, ...NORTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) === 'CALBUCO')]
+          ? SOUTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) !== 'CASTRO')
           : northbound ? NORTHBOUND_DESTINATIONS : SOUTHBOUND_DESTINATIONS;
     const visibleDestinations = NORTH_OF_TRES_CRUCES_PORTS.has(origin) && origin !== 'PUERTO MONTT' && origin !== 'CALBUCO'
       ? [...destinations, { value:'PUERTO MONTT', label:'PUERTO MONTT' }]
