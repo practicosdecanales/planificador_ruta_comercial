@@ -481,7 +481,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const origin = canonical(originSelect.value);
     const northbound = NORTHBOUND_ORIGINS.includes(origin);
     const destinations = origin === 'CASTRO'
-      ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => canonical(destination.value) !== 'CASTRO' && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
+      ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => !['CASTRO','CALBUCO','LAITEC'].includes(canonical(destination.value)) && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
       : origin === 'CHACABUCO'
       ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => canonical(destination.value) !== 'CHACABUCO' && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
       : origin === 'PARENAS'
