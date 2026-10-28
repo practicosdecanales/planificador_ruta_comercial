@@ -542,12 +542,17 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   function planLabel(plan) {
     const names = [];
     plan.forEach((route, index) => {
-      route.nodes.forEach((node, i) => {
+      routeDisplayNodes(route).forEach((node, i) => {
         if (index && i === 0 && names[names.length - 1] === node) return;
         names.push(node);
       });
     });
     return names.join(' → ');
+  }
+  function routeDisplayNodes(route) {
+    if (route.file === 'TUAP-YAL-CASTRO.rt3') return ['TUAP','YAL','CASTRO'];
+    if (route.file === 'CASTRO-YAL-TUAP.rt3') return ['CASTRO','YAL','TUAP'];
+    return route.nodes;
   }
 
   function departureWallClockMs() {
@@ -746,10 +751,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'route-choice';
-          button.setAttribute('aria-label', route.nodes.join(' hacia '));
-          const flowNodes = route.nodes.map((node, index) => {
+          const displayNodes = routeDisplayNodes(route);
+          button.setAttribute('aria-label', displayNodes.join(' hacia '));
+          const flowNodes = displayNodes.map((node, index) => {
             const isOrigin = selectedSegments.length === 0 && index === 0 && node === start;
-            const isDestination = index === route.nodes.length - 1 && node === finish;
+            const isDestination = index === displayNodes.length - 1 && node === finish;
             const nodeClass = isOrigin ? 'flow-origin' : isDestination ? 'flow-destination' : 'flow-main';
             const arrow = index ? '<span class="flow-arrow" aria-hidden="true">→</span>' : '';
             return `${arrow}<span class="flow-node ${nodeClass}">${escapeText(node)}</span>`;
