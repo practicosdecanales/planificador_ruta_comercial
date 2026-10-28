@@ -64,6 +64,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   <script src="vendor/leaflet-1.9.4/leaflet.js"></script>
   <script src="calbuco-raper-routes.js"></script>
   <script src="puerto-montt-tres-cruces-routes.js"></script>
+  <script src="castro-routes.js"></script>
   <script>
 (function () {
   'use strict';
@@ -83,7 +84,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   const CALBUCO_RAPER_SOUTHBOUND_CONNECTORS = new Set(['CALBUCO-APIAO-GUAFO-RAPER.rt3','CALBUCO-DESERTORES-GUAFO-RAPER.rt3']);
   const CALBUCO_RAPER_NORTHBOUND_CONNECTORS = new Set(['RAPER-GUAFO-APIAO-CALBUCO.rt3','RAPER-GUAFO-DESERTORES-CALBUCO.rt3']);
   const CALBUCO_RAPER_CONNECTORS = new Set([...CALBUCO_RAPER_SOUTHBOUND_CONNECTORS, ...CALBUCO_RAPER_NORTHBOUND_CONNECTORS]);
-  const ROUTES = [...(window.RT3_DATA || []), ...(window.CALBUCO_RAPER_RT3_DATA || []), ...(window.PUERTO_MONTT_TRES_CRUCES_RT3_DATA || [])].flatMap(route => {
+  const CASTRO_TRES_CRUCES_CONNECTORS = new Set(['CASTRO-APIAO-TRES CRUCES.rt3','TRES CRUCES-APIAO-CASTRO.rt3']);
+  const CASTRO_TUAP_CONNECTORS = new Set(['TUAP-YAL-CASTRO.rt3','CASTRO-YAL-TUAP.rt3']);
+  const CASTRO_PUERTO_MONTT_CONNECTORS = new Set(['CASTRO-APIAO-PUERTO MONTT.rt3','PUERTO MONTT-APIAO-CASTRO.rt3']);
+  const CASTRO_CONNECTORS = new Set([...CASTRO_TRES_CRUCES_CONNECTORS, ...CASTRO_TUAP_CONNECTORS, ...CASTRO_PUERTO_MONTT_CONNECTORS]);
+  const ROUTES = [...(window.RT3_DATA || []), ...(window.CALBUCO_RAPER_RT3_DATA || []), ...(window.PUERTO_MONTT_TRES_CRUCES_RT3_DATA || []), ...(window.CASTRO_RT3_DATA || [])].flatMap(route => {
     const normalized = { ...route, nodes: (route.nodes || []).map(canonical) };
     if (CHACABUCO_CONNECTORS.has(route.file)) {
       const direction = CHACABUCO_SOUTH_CONNECTORS.has(route.file) ? 'south' : 'north';
@@ -100,9 +105,10 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   const SOUTHBOUND_ORIGINS = ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT','CALBUCO','LAITEC'];
   const NORTHBOUND_ORIGINS = ['POSESION','PARENAS','CABO NEGRO','GUARELLO','PUERTO USHUAIA','PUERTO WILLIAMS'];
   const SOUTHBOUND_ONLY_GUARELLO_ROUTES = new Set(['RAPER-GUARELLO.rt3','STRATFORD-GUARELLO.rt3']);
-  const ORIGINS = ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT',{value:'CALBUCO',label:'CALBUCO (PUERTO SAN JOSÉ)'},'LAITEC','CHACABUCO','GUARELLO','POSESION','CABO NEGRO','PARENAS','PUERTO USHUAIA','PUERTO WILLIAMS'];
+  const ORIGINS = ['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','PUERTO MONTT',{value:'CALBUCO',label:'CALBUCO (PUERTO SAN JOSÉ)'},{value:'CASTRO',label:'CASTRO'},'LAITEC','CHACABUCO','GUARELLO','POSESION','CABO NEGRO','PARENAS','PUERTO USHUAIA','PUERTO WILLIAMS'];
   const SOUTHBOUND_DESTINATIONS = [
     { value:'CHACABUCO', label:'CHACABUCO' },
+    { value:'CASTRO', label:'CASTRO' },
     { value:'GUARELLO', label:'GUARELLO' },
     { value:'POSESION', label:'POSESIÓN' },
     { value:'CABO NEGRO', label:'CABO NEGRO' },
@@ -118,12 +124,14 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     { value:'SAN VICENTE', label:'SAN VICENTE' },
     { value:'CORONEL', label:'CORONEL' },
     { value:'ANCUD', label:'ANCUD' },
+    { value:'CASTRO', label:'CASTRO' },
     { value:'PUERTO MONTT', label:'PUERTO MONTT' },
     { value:'CALBUCO', label:'CALBUCO (PUERTO SAN JOSÉ)' },
     { value:'LAITEC', label:'LAITEC' },
     { value:'CHACABUCO', label:'CHACABUCO' }
   ];
   const NORTH_OF_TRES_CRUCES_PORTS = new Set(['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','CALBUCO']);
+  const CASTRO_TRES_CRUCES_ENDPOINTS = new Set(['QUINTERO','VALPARAISO','SAN ANTONIO','CONCEPCION','SAN VICENTE','CORONEL','ANCUD','TRES CRUCES']);
   const SOUTH_OF_TRES_CRUCES_PORTS = new Set([...SOUTHBOUND_DESTINATIONS.map(destination => canonical(destination.value)), ...NORTHBOUND_ORIGINS]);
   const NORTHERN_DESTINATIONS_FROM_PUERTO_MONTT = NORTH_OF_TRES_CRUCES_PORTS;
   const TRES_CRUCES_LATITUDE_RAW = -2509.04022;
@@ -134,6 +142,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const end = canonical(finish);
     if (start === 'PARENAS' && (end === 'PUERTO USHUAIA' || end === 'PUERTO WILLIAMS')) return false;
     if ((start === 'PUERTO USHUAIA' || start === 'PUERTO WILLIAMS') && end === 'PARENAS') return true;
+    if (start === 'CASTRO') return end === 'PUERTO MONTT' || end === 'TRES CRUCES' || NORTHERN_DESTINATIONS_FROM_PUERTO_MONTT.has(end);
     if (start === 'PUERTO MONTT') return NORTHERN_DESTINATIONS_FROM_PUERTO_MONTT.has(end);
     if (start === 'CHACABUCO') {
       return NORTHBOUND_DESTINATIONS.some(destination => canonical(destination.value) === canonical(finish) && canonical(finish) !== 'CHACABUCO');
@@ -180,6 +189,12 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   function routeAllowedForTrip(route, origin, finish) {
     const start = canonical(origin);
     const end = canonical(finish);
+    const castroMode = castroConnectionMode(start, end);
+    if (CASTRO_CONNECTORS.has(route.file) && castroMode === null) return false;
+    if (castroMode === 'puerto-montt' && !CASTRO_PUERTO_MONTT_CONNECTORS.has(route.file)) return false;
+    if (castroMode === 'tuap' && !CASTRO_TUAP_CONNECTORS.has(route.file)) return false;
+    if (castroMode === 'tres-cruces' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TRES_CRUCES_CONNECTORS.has(route.file)) return false;
+    if (castroMode === 'via-tuap' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TUAP_CONNECTORS.has(route.file)) return false;
     if (isPuertoMonttNorthSideTrip(start, end) && routeGoesSouthOfTresCruces(route)) return false;
     if (requiresTresCrucesForPuertoMontt(start, end) && route.nodes.includes('RAPER')) return false;
     if (mustAvoidTresCrucesForPuertoMontt(start, end) && route.nodes.includes('TRES CRUCES')) return false;
@@ -190,6 +205,16 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (route.onlyOrigin && route.onlyOrigin !== start) return false;
     if (route.onlyDirection && route.onlyDirection !== (isNorthboundTrip(origin, finish) ? 'north' : 'south')) return false;
     return true;
+  }
+  function castroConnectionMode(origin, finish) {
+    const start = canonical(origin);
+    const end = canonical(finish);
+    if (start !== 'CASTRO' && end !== 'CASTRO') return null;
+    const other = start === 'CASTRO' ? end : start;
+    if (other === 'PUERTO MONTT') return 'puerto-montt';
+    if (other === 'TUAP') return 'tuap';
+    if (CASTRO_TRES_CRUCES_ENDPOINTS.has(other)) return 'tres-cruces';
+    return 'via-tuap';
   }
   function activeTerminals() {
     const northbound = isNorthboundTrip(originSelect.value, destinationSelect.value);
@@ -218,7 +243,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     ['BAHIA QUINTEROS',['BAHIA QUINTEROS']],['VALPARAISO',['VALPARAISO']],['PTO SAN ANTONIO',['PTO SAN ANTONIO']],
     ['BA CONCEPCION',['BA CONCEPCION']],['BA SAN VICENTE',['BA SAN VICENTE']],['BA CORONEL',['BA CORONEL']],['ISLA MOCHA',['ISLA MOCHA']],
     ['FARO CORONA',['FARO CORONA']],['PS ANCUD',['PS ANCUD']],['TRES CRUCES',['TRES CRUCES']],['CANAL QUICAVI',['CANAL QUICAVI']],
-    ['PUNTA MANZANO',['PUNTA MANZANO']],['PUERTO SAN JOSE',['PUERTO SAN JOSE']],['GUAFO',['GUAFO']],['GUARELLO',['GUARELLO']],['PUNTA CHANA',['PUNTA CHANA']],['PUERTO MONTT',['PUERTO MONTT']],['PS LAITEC',['PS LAITEC']],
+    ['PUNTA MANZANO',['PUNTA MANZANO']],['PUERTO SAN JOSE',['PUERTO SAN JOSE']],['GUAFO',['GUAFO']],['GUARELLO',['GUARELLO']],['PUNTA CHANA',['PUNTA CHANA']],['PUERTO MONTT',['PUERTO MONTT']],['F CASTRO A',['F CASTRO A','CASTRO']],['PS LAITEC',['PS LAITEC']],
     ['ISLA GUAITECA',['ISLA GUAITECA']],['ISLA TUAP',['ISLA TUAP']],['ISLA LEUCOTON',['ISLA LEUCOTON']],['BAJO DARWIN',['BAJO DARWIN']],
     ['ISLA CARLOS',['ISLA CARLOS']],['PUNTA MORRO',['PUNTA MORRO']],['FARO RAPER',['FARO RAPER']],['FARO SAN PEDRO',['FARO SAN PEDRO']],
     ['CANAL ADALBERTO',['CANAL ADALBERTO']],['ISLOTE CLIO',['ISLOTE CLIO']],['GOLFO LADRILLERO',['GOLF LADRILLERO','GOLFO LADRILLERO']],
@@ -228,7 +253,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     ['CABO CROSSTIDE',['CABO CROSSTIDE']],['CABO FROWARD',['CABO FROWARD']],['CABO NEGRO',['CABO NEGRO']],['BAHIA PARENAS',['BAHIA PARENAS']],
     ['SEG ANGOSTURA',['SEG ANGOSTURA']],['PUNTA DELGADA',['PUNTA DELGADA']],['PS POSESION',['PS POSESION']],['BAHIA CHACABUCO',['BAHIA CHACABUCO','CHACABUCO']]
   ].map(([label, aliases]) => ({ label, aliases: aliases.map(normalizeWaypointName) }));
-  const INITIAL_MAP_WAYPOINTS = ['BAHIA QUINTEROS','VALPARAISO','PTO SAN ANTONIO','BA CONCEPCION','BA SAN VICENTE','BA CORONEL','PS ANCUD','PUERTO MONTT','PUERTO SAN JOSE','PS LAITEC','CABO NEGRO','BAHIA PARENAS','PS POSESION','GUARELLO','BAHIA CHACABUCO','PUERTO WILLIAMS','PUERTO USHUAIA'];
+  const INITIAL_MAP_WAYPOINTS = ['BAHIA QUINTEROS','VALPARAISO','PTO SAN ANTONIO','BA CONCEPCION','BA SAN VICENTE','BA CORONEL','PS ANCUD','PUERTO MONTT','PUERTO SAN JOSE','F CASTRO A','PS LAITEC','CABO NEGRO','BAHIA PARENAS','PS POSESION','GUARELLO','BAHIA CHACABUCO','PUERTO WILLIAMS','PUERTO USHUAIA'];
   const ROUTE_RESTRICTIONS = [
     { point: 'ANCUD', label: 'Ancud', text: 'Eslora máxima: 230 mts / Calado máximo: 11 mts' },
     { waypointIncludes: 'REMOLINOS', label: 'Canal Chacao', text: 'Calado aéreo máximo: 59 mts' },
@@ -254,6 +279,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     'ANCUD': { label: 'PS ANCUD', aliases: ['PS ANCUD'] },
     'PUERTO MONTT': { label: 'PUERTO MONTT', aliases: ['PUERTO MONTT'] },
     'CALBUCO': { label: 'PUERTO SAN JOSE', aliases: ['PUERTO SAN JOSE'] },
+    'CASTRO': { label: 'F CASTRO A', aliases: ['F CASTRO A', 'CASTRO'], coordinates: { lat: -2548.89977 / 60, lon: -4424.87000 / 60 } },
     'LAITEC': { label: 'PS LAITEC', aliases: ['PS LAITEC'] },
     'POSESION': { label: 'PS POSESION', aliases: ['PS POSESION'] },
     'PARENAS': { label: 'PUNTA ARENAS E', aliases: ['PUNTA ARENAS E'] },
@@ -286,6 +312,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
         } catch (_) {}
       }
     }
+    if (!result && endpoint && endpoint.coordinates) result = { ...endpoint.coordinates, label: endpoint.label };
     endpointCoordinateCache.set(key, result);
     return result;
   }
@@ -331,6 +358,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
   function canonical(value) {
     const text = String(value || '').trim().toLocaleUpperCase('es');
     if (text === 'PUNTA ARENAS' || text === 'PARENAS') return 'PARENAS';
+    if (text === 'F CASTRO A' || text === 'CASTRO') return 'CASTRO';
     if (text === 'POSESION') return 'POSESION';
     return text;
   }
@@ -447,7 +475,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const previous = destinationSelect.value;
     const origin = canonical(originSelect.value);
     const northbound = NORTHBOUND_ORIGINS.includes(origin);
-    const destinations = origin === 'CHACABUCO'
+    const destinations = origin === 'CASTRO'
+      ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => canonical(destination.value) !== 'CASTRO' && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
+      : origin === 'CHACABUCO'
       ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => canonical(destination.value) !== 'CHACABUCO' && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
       : origin === 'PARENAS'
         ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) === 'PUERTO WILLIAMS' || canonical(destination.value) === 'PUERTO USHUAIA')]
