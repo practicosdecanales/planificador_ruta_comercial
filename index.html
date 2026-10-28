@@ -196,6 +196,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     if (castroMode === 'tres-cruces' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TRES_CRUCES_CONNECTORS.has(route.file)) return false;
     if (castroMode === 'tres-cruces' && route.nodes.includes('RAPER')) return false;
     if (castroMode === 'via-tuap' && CASTRO_CONNECTORS.has(route.file) && !CASTRO_TUAP_CONNECTORS.has(route.file)) return false;
+    const originPoint = findEndpointWaypoint(start);
+    const tuapPoint = findEndpointWaypoint('TUAP');
+    if (originPoint && tuapPoint && originPoint.lat > tuapPoint.lat && SOUTH_OF_TRES_CRUCES_PORTS.has(end) && route.nodes[0] === 'TUAP' && routeEndLatitude(route) > tuapPoint.lat) return false;
     if (isPuertoMonttNorthSideTrip(start, end) && routeGoesSouthOfTresCruces(route)) return false;
     if (requiresTresCrucesForPuertoMontt(start, end) && route.nodes.includes('RAPER')) return false;
     if (mustAvoidTresCrucesForPuertoMontt(start, end) && route.nodes.includes('TRES CRUCES')) return false;
@@ -281,6 +284,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     'PUERTO MONTT': { label: 'PUERTO MONTT', aliases: ['PUERTO MONTT'] },
     'CALBUCO': { label: 'PUERTO SAN JOSE', aliases: ['PUERTO SAN JOSE'] },
     'CASTRO': { label: 'F CASTRO A', aliases: ['F CASTRO A', 'CASTRO'], coordinates: { lat: -2548.89977 / 60, lon: -4424.87000 / 60 } },
+    'TUAP': { label: 'ISLA TUAP', aliases: ['ISLA TUAP', 'TUAP'] },
     'LAITEC': { label: 'PS LAITEC', aliases: ['PS LAITEC'] },
     'POSESION': { label: 'PS POSESION', aliases: ['PS POSESION'] },
     'PARENAS': { label: 'PUNTA ARENAS E', aliases: ['PUNTA ARENAS E'] },
