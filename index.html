@@ -146,6 +146,9 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     return (start === 'PUERTO MONTT' && NORTH_OF_TRES_CRUCES_PORTS.has(end))
       || (end === 'PUERTO MONTT' && NORTH_OF_TRES_CRUCES_PORTS.has(start));
   }
+  function requiresTresCrucesForPuertoMontt(origin, finish) {
+    return canonical(finish) === 'PUERTO MONTT' && NORTH_OF_TRES_CRUCES_PORTS.has(canonical(origin));
+  }
   function routeGoesSouthOfTresCruces(route) {
     const startsAtTresCruces = route.nodes[0] === 'TRES CRUCES';
     const endsAtTresCruces = route.nodes.at(-1) === 'TRES CRUCES';
@@ -164,6 +167,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
     const start = canonical(origin);
     const end = canonical(finish);
     if (isPuertoMonttNorthSideTrip(start, end) && routeGoesSouthOfTresCruces(route)) return false;
+    if (requiresTresCrucesForPuertoMontt(start, end) && route.nodes.includes('RAPER')) return false;
     const southernPorts = new Set(['PUERTO USHUAIA', 'PUERTO WILLIAMS']);
     const puntaArenasPortTrip = (start === 'PARENAS' && southernPorts.has(end)) || (southernPorts.has(start) && end === 'PARENAS');
     const passesFalgate = route.nodes.includes('FALGATE') || /WPName="[^"]*FALGATE[^"]*"/i.test(route.content || '');
@@ -442,7 +446,8 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
 
   function canReachDestination(from, finish, initialUsedFiles, initialVisitedNodes) {
     const requireCorona = canonical(originSelect.value) === 'CHACABUCO' && canonical(finish) === 'CORONEL';
-    if (from === finish) return !requireCorona || initialVisitedNodes.has('CORONA');
+    const requireTresCruces = requiresTresCrucesForPuertoMontt(originSelect.value, finish);
+    if (from === finish) return (!requireCorona || initialVisitedNodes.has('CORONA')) && (!requireTresCruces || initialVisitedNodes.has('TRES CRUCES'));
     const queue = [{ at: from, usedFiles: new Set(initialUsedFiles), visitedNodes: new Set(initialVisitedNodes) }];
     const seenStates = new Set();
     while (queue.length) {
@@ -462,7 +467,7 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
         if (followingNodes.some(node => node !== finish && state.visitedNodes.has(node))) continue;
         if (followingNodes.some(node => node !== finish && activeTerminals().has(node))) continue;
         const nextNode = route.nodes.at(-1);
-        if (nextNode === finish) return !requireCorona || state.visitedNodes.has('CORONA') || route.nodes.includes('CORONA');
+        if (nextNode === finish) return (!requireCorona || state.visitedNodes.has('CORONA') || route.nodes.includes('CORONA')) && (!requireTresCruces || state.visitedNodes.has('TRES CRUCES') || route.nodes.includes('TRES CRUCES'));
         const nextUsedFiles = new Set(state.usedFiles);
         nextUsedFiles.add(route.file);
         const nextVisitedNodes = new Set(state.visitedNodes);
