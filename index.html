@@ -491,11 +491,11 @@ window.RT3_DATA = [{"file":"ANCUD-COLO COLO-TRES CRUCES.rt3","nodes":["ANCUD","C
           : origin === 'PUERTO MONTT'
         ? [...NORTHBOUND_DESTINATIONS, ...SOUTHBOUND_DESTINATIONS].filter((destination, index, all) => canonical(destination.value) !== 'PUERTO MONTT' && all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
       : origin === 'CALBUCO'
-        ? SOUTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) !== 'CHACABUCO')
+        ? SOUTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) !== 'CHACABUCO' && canonical(destination.value) !== 'CASTRO' && !NORTHBOUND_DESTINATIONS.some(northboundDestination => canonical(northboundDestination.value) === canonical(destination.value)))
         : origin === 'LAITEC'
           ? [...SOUTHBOUND_DESTINATIONS, ...NORTHBOUND_DESTINATIONS.filter(destination => canonical(destination.value) === 'CALBUCO')]
           : northbound ? NORTHBOUND_DESTINATIONS : SOUTHBOUND_DESTINATIONS;
-    const visibleDestinations = NORTH_OF_TRES_CRUCES_PORTS.has(origin) && origin !== 'PUERTO MONTT'
+    const visibleDestinations = NORTH_OF_TRES_CRUCES_PORTS.has(origin) && origin !== 'PUERTO MONTT' && origin !== 'CALBUCO'
       ? [...destinations, { value:'PUERTO MONTT', label:'PUERTO MONTT' }]
           .filter((destination, index, all) => all.findIndex(item => canonical(item.value) === canonical(destination.value)) === index)
       : destinations;
